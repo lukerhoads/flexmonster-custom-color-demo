@@ -1,13 +1,15 @@
 # Flexmonster Pivot integration with TypeScript + Webpack
+
 [![Flexmonster Pivot Table & Charts](https://s3.amazonaws.com/flexmonster/github/fm-github-cover.png)](https://www.flexmonster.com/?r=rm_typescript)
 
 Website: [flexmonster.com](https://www.flexmonster.com/?r=rm_typescript)
 
-This repository holds TypeScript + Webpack application with Flexmonster Pivot. 
+This repository holds TypeScript + Webpack application with Flexmonster Pivot.
 
 ## Step 1: Create a new project based on this sample
 
 Download `.zip` archive with the sample or clone this repo into new project folder (e.g., `my-proj`).
+
 ```bash
 git clone https://github.com/flexmonster/pivot-typescript/  my-proj
 cd my-proj/webpackProject

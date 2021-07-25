@@ -1,17 +1,18 @@
 import React from 'react'
 
 export type CustomizationFormProps = {
-    customizeChartElement: (element: Element, data: Flexmonster.ChartData | Flexmonster.ChartLegendItemData) => void
+    customizeChartElement: (
+        element: Element,
+        data: Flexmonster.ChartData | Flexmonster.ChartLegendItemData,
+    ) => void
 }
 
 const CustomizationForm = ({ ...props }: CustomizationFormProps) => {
-    const {
-        customizeChartElement
-    } = props
-    
+    const { customizeChartElement } = props
+
     return (
         <div>
-            CustomizationForm
+            <h2>Customization</h2>
         </div>
     )
 }
