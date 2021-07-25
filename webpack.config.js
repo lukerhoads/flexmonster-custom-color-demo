@@ -1,40 +1,48 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'development',
-    entry: './index.tsx',
-    resolve: {
-        extensions: ['.ts', '.js', '.tsx', '.json'],
+    entry: {
+        app: './src/index.tsx',
     },
     output: {
-        path: path.join(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js',
+    },
+    resolve: {
+        extensions: ['.ts', '.js', '.jsx', '.tsx', '.json'],
     },
     module: {
         rules: [
             {
-                test: /\.(ts|tsx)?$/,
+                test: /\.tsx?$/,
                 loader: 'ts-loader',
             },
             {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader'],
             },
-            // {
-            //     test: /\.(woff|woff2|eot|ttf|otf|svg)$/,
-            //     loader: 'url-loader',
-            //     options: {
-            //       name: 'flexmonster-icons.[ext]',
-            //       publicPath: ''
-            //     }
-            // }
+            {
+                test: /\.(woff|woff2|eot|ttf|otf|svg)$/,
+                loader: 'url-loader',
+                options: {
+                  name: 'flexmonster-icons.[ext]',
+                  publicPath: ''
+                }
+            },
         ],
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, 'templates', 'index.html'),
-        }),
+        // new HtmlWebpackPlugin({
+        //     template: './templates/index.html',
+        // }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: 'templates' }
+            ]
+        })
     ],
     devServer: {
         contentBase: path.resolve(__dirname, 'dist'),

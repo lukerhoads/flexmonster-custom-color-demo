@@ -1,5 +1,4 @@
-// JSON testdata
-import testdata from '../testdata/testdata.json'
+import testdata from '../../testdata/testdata.json'
 
 // Helper function defined just in case any manual preprocessing is needed
 const getData = (): object[] | undefined => {
@@ -20,6 +19,9 @@ export const gridReport = {
     options: {
         ...baseReport.options,
         viewType: 'grid',
+        chart: {
+            type: 'grid',
+        },
     },
     slice: {
         reportFilters: [
@@ -82,9 +84,9 @@ export const gridReport = {
 
 export const columnReport = {
     ...baseReport.dataSource,
-    viewTypes: 'charts',
     options: {
         ...baseReport.options,
+        viewType: 'charts',
         chart: {
             type: 'column',
         },

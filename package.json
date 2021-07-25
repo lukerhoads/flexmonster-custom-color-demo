@@ -18,6 +18,13 @@
         "react-flexmonster": "^2.9.3"
     },
     "devDependencies": {
+        "@babel/core": "7.5.0",
+        "@babel/plugin-transform-regenerator": "7.4.5",
+        "@babel/plugin-transform-runtime": "7.5.0",
+        "@babel/preset-env": "7.5.0",
+        "@babel/preset-react": "7.0.0",
+        "@babel/preset-typescript": "^7.14.5",
+        "@babel/runtime": "7.5.0",
         "@types/react": "^17.0.15",
         "@types/react-dom": "^17.0.9",
         "@webpack-cli/serve": "^1.5.1",
