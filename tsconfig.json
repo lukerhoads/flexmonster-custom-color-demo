@@ -18,7 +18,7 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "isolatedModules": true
-      },
+    },
     "include": ["."],
     "exclude": ["node_modules", "**/*.spec.ts"]
 }

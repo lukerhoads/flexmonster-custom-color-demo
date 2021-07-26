@@ -1,89 +1,101 @@
-import React, { useRef, useState } from 'react'
-import Flexmonster from 'flexmonster'
+import React, { useEffect, useRef, useState } from 'react'
 import * as FlexmonsterReact from 'react-flexmonster'
-import CustomizationForm from './components/CustomizationForm'
-import { ChartTypes } from './types'
-import { gridReport, columnReport } from './meta'
+import { CustomizationForm } from './components'
+import Flexmonster from 'flexmonster'
+import { customizeChartElement } from './utils'
+// import { Provider, atom, useAtom } from 'jotai'
+import { AppContext } from './AppContext'
+import { gridReport } from './meta'
+
+// Need a way to trigger a parent function on change
+// export const dataSourceAtom = atom<string>('')
+// export const displayConfigurationAtom = atom<string>('')
+// export const reportAtom = atom(gridReport)
 
 type AppProps = {}
 
 const initialConfig = {
+    toolbar: true,
     componentFolder: 'https://cdn.flexmonster.com/',
     width: '100%',
     height: 600,
-    report: gridReport,
-}
-
-// Upstream customization function which will propagate to the configured pivot instance
-const customizeChartElement = (
-    element: Element,
-    data: Flexmonster.ChartData | Flexmonster.ChartLegendItemData,
-) => {
-    // Element can be used with querySelector for grabbing items
-    // Data can be used as meta
-    console.log(element, data)
 }
 
 const App = ({ ...props }: AppProps) => {
+    const [dataSource, setDataSource] = useState<string>('')
+    const [displayConfiguration, setDisplayConfiguration] = useState<string>('')
+    const [reportDerived, setReportDerived] = useState(gridReport)
+
     const localInitialConfig = {
         ...initialConfig,
+        report: reportDerived,
         customizeChartElement: customizeChartElement,
     }
-    const [flexmonsterConfig, setFlexmonsterConfig] =
-        useState<typeof localInitialConfig>(localInitialConfig)
 
-    // Update current config, if update is within report
-    // this is going to be legacy really quickly, simply not
-    // enough to support super nested config updates
-    const updateFlexmonsterConfig = (newConfig: any) => {
-        if (
-            typeof newConfig === typeof gridReport ||
-            typeof newConfig === typeof columnReport
-        ) {
-            console.log(newConfig)
-            return setFlexmonsterConfig((prevConfig) => ({
-                ...prevConfig,
-                report: {
-                    ...newConfig,
-                },
-            }))
-        }
+    console.log(dataSource)
 
-        // Checking if newConfig is an object and contains same keys as flexmonsterConfig
-        if (
-            typeof newConfig === 'object' &&
-            Object.keys(flexmonsterConfig).some((key) =>
-                Object.keys(newConfig).includes(key),
-            )
-        ) {
-            return setFlexmonsterConfig((prevConfig) => ({
-                ...prevConfig,
-                ...newConfig,
-            }))
-        }
+    // Report state, definitely think of using this for data filtering.
+    // ATM will not because all display options can be configured seperately.
+    // Plus, with the toolbar,  built in data filtering is provided.
+    // const [flexmonsterReport, setFlexmonsterReport] = useState<
+    //     typeof gridReport | typeof columnReport
+    // >(gridReport)
 
-        return
+    const pivotRef: React.RefObject<FlexmonsterReact.Pivot> =
+        React.createRef<FlexmonsterReact.Pivot>()
+    var flexmonster: Flexmonster.Pivot
+
+    // Lifecycle
+    useEffect(() => {
+        flexmonster = pivotRef.current!.flexmonster
+    }, [])
+
+    // Utility
+    const showGrid = () => {
+        return flexmonster.showGrid()
     }
 
-    const setNewChartType = (
-        newChartType: ChartTypes,
-    ) => {
-        if (newChartType === 'grid') {
-            return updateFlexmonsterConfig(gridReport)
-        } else {
-            updateFlexmonsterConfig(columnReport)
-            console.log(flexmonsterConfig)
-            return
-        }
+    const showColumn = () => {
+        return flexmonster.showCharts('column')
+    }
+
+    // Listen for change in either dataSource or displayConfiguration and
+    // respectively update the report atom
+    const saveDataSource = (newDataSource: string) => {
+        return setDataSource(newDataSource)
+    }
+
+    const saveDisplayConfiguration = (newDisplayConfiguration: string) => {
+        return setDisplayConfiguration(newDisplayConfiguration)
+    }
+
+    const defaultState = {
+        dataSource,
+        displayConfiguration,
+        reportDerived,
+        saveDataSource,
+        saveDisplayConfiguration,
+        customizeChartElement,
     }
 
     return (
-        <div>
-            <button type="button" onClick={() => setNewChartType('grid')}>Table</button>
-            <button type="button" onClick={() => setNewChartType('column')}>Chart</button>
-            <FlexmonsterReact.Pivot {...flexmonsterConfig} />
-            <CustomizationForm customizeChartElement={customizeChartElement} />
-        </div>
+        <AppContext.Provider value={defaultState}>
+            <div>
+                <button type="button" onClick={() => showGrid()}>
+                    Grid
+                </button>
+                <button type="button" onClick={() => showColumn()}>
+                    Chart
+                </button>
+                <FlexmonsterReact.Pivot
+                    ref={pivotRef}
+                    {...localInitialConfig}
+                />
+                <CustomizationForm
+                    customizeChartElement={customizeChartElement}
+                />
+            </div>
+        </AppContext.Provider>
     )
 }
 

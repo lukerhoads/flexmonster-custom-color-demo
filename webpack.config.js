@@ -1,6 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
     mode: 'development',
@@ -28,9 +28,9 @@ module.exports = {
                 test: /\.(woff|woff2|eot|ttf|otf|svg)$/,
                 loader: 'url-loader',
                 options: {
-                  name: 'flexmonster-icons.[ext]',
-                  publicPath: ''
-                }
+                    name: 'flexmonster-icons.[ext]',
+                    publicPath: '',
+                },
             },
         ],
     },
@@ -39,10 +39,8 @@ module.exports = {
         //     template: './templates/index.html',
         // }),
         new CopyWebpackPlugin({
-            patterns: [
-                { from: 'templates' }
-            ]
-        })
+            patterns: [{ from: 'templates' }],
+        }),
     ],
     devServer: {
         contentBase: path.resolve(__dirname, 'dist'),

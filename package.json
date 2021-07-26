@@ -12,10 +12,13 @@
         "format": "npx prettier --write ."
     },
     "dependencies": {
+        "@types/styled-jsx": "^2.2.9",
         "flexmonster": "latest",
+        "jotai": "^1.2.2",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "react-flexmonster": "^2.9.3"
+        "react-flexmonster": "^2.9.3",
+        "styled-jsx": "^3.4.4"
     },
     "devDependencies": {
         "@babel/core": "7.5.0",
