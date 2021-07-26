@@ -8,7 +8,7 @@ const customizeChartElement = (
 ) => {
     // Element can be used with querySelector for grabbing items
     // Data can be used as meta
-    // console.log(element, data)
+    console.log(element, data)
 }
 
 export default customizeChartElement

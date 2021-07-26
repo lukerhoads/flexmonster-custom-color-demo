@@ -1,1 +1,1 @@
-export { baseReport, gridReport, columnReport } from './reports'
+export { getData, baseReport, gridReport } from './reports'

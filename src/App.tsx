@@ -5,7 +5,7 @@ import Flexmonster from 'flexmonster'
 import { customizeChartElement } from './utils'
 // import { Provider, atom, useAtom } from 'jotai'
 import { AppContext } from './AppContext'
-import { gridReport } from './meta'
+import { gridReport, getData } from './meta'
 
 // Need a way to trigger a parent function on change
 // export const dataSourceAtom = atom<string>('')
@@ -32,8 +32,6 @@ const App = ({ ...props }: AppProps) => {
         customizeChartElement: customizeChartElement,
     }
 
-    console.log(dataSource)
-
     // Report state, definitely think of using this for data filtering.
     // ATM will not because all display options can be configured seperately.
     // Plus, with the toolbar,  built in data filtering is provided.
@@ -52,6 +50,8 @@ const App = ({ ...props }: AppProps) => {
 
     // Utility
     const showGrid = () => {
+        // ATM, switching is not available due to dependency on report which is 
+        // in state
         return flexmonster.showGrid()
     }
 
@@ -59,10 +59,15 @@ const App = ({ ...props }: AppProps) => {
         return flexmonster.showCharts('column')
     }
 
-    // Listen for change in either dataSource or displayConfiguration and
-    // respectively update the report atom
+    // Applies downstream changes to configuration
     const saveDataSource = (newDataSource: string) => {
-        return setDataSource(newDataSource)
+        setDataSource(newDataSource) // questionable
+        return setReportDerived((prev: any) => ({
+            ...prev,
+            dataSource: {
+                data: getData(newDataSource),
+            },
+        }))
     }
 
     const saveDisplayConfiguration = (newDisplayConfiguration: string) => {

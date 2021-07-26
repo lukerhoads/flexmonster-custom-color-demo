@@ -1,7 +1,7 @@
 import testdata from '../../testdata/testdata.json'
 
 // Helper function defined just in case any manual preprocessing is needed
-const getData = (url?: string): object[] | undefined => {
+export const getData = (url?: string): object[] | undefined => {
     if (url) {
         var data: any
         fetch(url)
@@ -27,7 +27,7 @@ export const baseReport: Flexmonster.Report = {
     },
 }
 
-export type ReportType = typeof gridReport & typeof columnReport
+export type ReportType = typeof gridReport
 
 export const gridReport = {
     ...baseReport.dataSource,
@@ -91,43 +91,4 @@ export const gridReport = {
             },
         },
     ],
-}
-
-// Unused
-export const columnReport = {
-    ...baseReport.dataSource,
-    options: {
-        ...baseReport.options,
-    },
-    slice: {
-        rows: [
-            {
-                uniqueName: 'Order Data.Month',
-            },
-        ],
-        columns: [
-            {
-                uniqueName: 'City',
-                filter: {
-                    measure: {
-                        uniqueName: 'Orders',
-                        aggregation: 'sum',
-                    },
-                    query: {
-                        top: 5,
-                    },
-                },
-            },
-            {
-                uniqueName: '[Measures]',
-            },
-        ],
-        measures: [
-            {
-                uniqueName: 'Orders',
-                aggregation: 'sum',
-            },
-        ],
-    },
-    conditions: [],
 }
