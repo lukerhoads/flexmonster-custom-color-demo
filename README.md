@@ -1,10 +1,12 @@
 # Flexmonster Customization Demo
 
 ## Notes and required knowledge
-With the React component, configuration is changed with objects. Specifically, the 
+
+With the React component, configuration is changed with objects. Specifically, the
 report object:
 
 Properties:
+
 ```javascript
 dataSource – Data Source Object. Contains information about the data source.
 slice – Slice Object. There you can define fields that go to rows, go to columns and go to measures, add filtering, sorting, report filtering, expands, and drills.
@@ -23,3 +25,33 @@ creationDate – String. Represents the date (in ISO format) of the report creat
 This report object contains information regarding chart display, columns, rows, measures, etc. It can be modified with tools in the component. Most of the modification is done automatically, but intermediating the configuration could provide useful in storing data organization properties.
 
 It does not easily include styling rules. This is where the `customizeChartElement` function comes in. This function receives all data elements in DOM formatting, making it fairly easy to parse and select what to style. Given a configuration, configuring how it parses and modifies these DOM elements would be the best approach to custom styling. Ultimately, this is where sharing that configuration would come in handy when sharing workspaces with collaborators.
+
+Example display configuration:
+
+```
+{
+    "graphType": {
+        "all": {
+            "labels": {
+                "Amazon": {
+                    "color": "#ff007f"
+                },
+                "Etsy": {
+                    "color": "#000"
+                }
+            },
+            "data": {}
+        }
+    }
+}
+```
+
+`graphType` defines what graph type the styles will be applied to. If `all` is present, all other graph types will be ignored, and the styles will be applied globally.
+
+As you can see, there are two subsections, `labels`, `data`. Labels contains options to style data labels, such as these:
+
+<img src="https://lukerhoads-utility.s3.amazonaws.com/labels.PNG"> /
+
+and Data contains options to style measured data, such as these:
+
+<img src="https://lukerhoads-utility.s3.amazonaws.com/graph.PNG"> /

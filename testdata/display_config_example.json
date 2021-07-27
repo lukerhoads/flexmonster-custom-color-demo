@@ -1,0 +1,32 @@
+{
+    "graphType": {
+        "all": {
+            "labels": {
+                "Amazon": {
+                    "color": "#ff007f"
+                },
+                "Etsy": {
+                    "color": "#000"
+                }
+            },
+            "data": {
+                
+            }
+        }
+    }
+}
+
+{
+    "graphType": {
+        "all": {
+            "labels": {
+                "Amazon": {
+                    "color": "#ff007f"
+                },
+                "Etsy": {
+                    "color": "#000"
+                }
+            }
+        }
+    }
+}

@@ -1,23 +1,49 @@
-import React, { ChangeEvent, useState, MouseEvent } from 'react'
+import React, { ChangeEvent, useState, MouseEvent, useEffect } from 'react'
 import { useApp } from '../../../AppContext'
 
 export type ConfigLoaderProps = {}
 
 // ConfigLoader allows you to customize the source of your data
 const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
-    const { saveDataSource, saveDisplayConfiguration } = useApp()
+    // Only display these if
+    const {
+        saveDataSource,
+        saveDisplayConfiguration,
+    } = useApp()
 
-    const [dataSource, setDataSource] = useState<string>('')
-    const [displayConfiguration, setDisplayConfiguration] = useState<string>('')
+    const [dataSourceDerived, setDataSourceDerived] = useState<string>('')
+    const [displayConfigurationDerived, setDisplayConfigurationDerived] =
+        useState<string>('')
+
+    // Lifecycle
+    useEffect(() => {
+        const storedCfg = localStorage.getItem('cfg')
+        if (storedCfg) {
+            const parsed = JSON.parse(storedCfg)
+            setDataSourceDerived(parsed.dataSource)
+            setDisplayConfigurationDerived(parsed.displayConfiguration)
+            saveDataSource(parsed.dataSource)
+            saveDisplayConfiguration(parsed.displayConfiguration)
+        }
+    }, [])
+
+    useEffect(() => {
+        const cfg = {
+            dataSource: dataSourceDerived,
+            displayConfiguration: displayConfigurationDerived,
+        }
+        if (localStorage.getItem('cfg')) localStorage.removeItem('cfg')
+        localStorage.setItem('cfg', JSON.stringify(cfg))
+    }, [dataSourceDerived, displayConfigurationDerived])
 
     const setNewDataSource = (e: ChangeEvent<HTMLInputElement>) => {
-        return setDataSource(e.currentTarget.value)
+        return setDataSourceDerived(e.currentTarget.value)
     }
 
     const setNewDisplayConfiguration = (
         e: ChangeEvent<HTMLTextAreaElement>,
     ) => {
-        return setDisplayConfiguration(e.currentTarget.value)
+        return setDisplayConfigurationDerived(e.currentTarget.value)
     }
 
     return (
@@ -27,13 +53,13 @@ const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
                 type="input"
                 name="data-source"
                 placeholder="https://example.com/data.json"
-                value={dataSource}
+                value={dataSourceDerived}
                 onChange={setNewDataSource}
             />
             <button
                 className="config-loader-button"
                 onClick={(e: MouseEvent<HTMLButtonElement>) =>
-                    saveDataSource(dataSource)
+                    saveDataSource(dataSourceDerived)
                 }
             >
                 Save
@@ -44,13 +70,13 @@ const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
             <textarea
                 className="config-loader-textarea"
                 name="display-configuration"
-                value={displayConfiguration}
+                value={displayConfigurationDerived}
                 onChange={setNewDisplayConfiguration}
             />
             <button
                 className="config-loader-button"
                 onClick={(e: MouseEvent<HTMLButtonElement>) =>
-                    saveDisplayConfiguration(displayConfiguration)
+                    saveDisplayConfiguration(displayConfigurationDerived)
                 }
             >
                 Save
