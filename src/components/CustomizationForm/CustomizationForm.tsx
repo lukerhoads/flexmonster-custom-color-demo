@@ -16,7 +16,13 @@ const CustomizationForm = ({ ...props }: CustomizationFormProps) => {
             </div>
             <style jsx>{`
                 input,
-                textarea {
+                textarea,
+                select {
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+
+                .button {
                     width: 100%;
                     box-sizing: border-box;
                 }

@@ -1,7 +1,7 @@
 export interface DisplayConfiguration {
     theme?: string
     readOnly?: boolean
-    graphType?: GraphTypes
+    graphType: GraphTypes
 }
 
 type GraphTypes = GraphTypesWildcard & {
@@ -21,12 +21,12 @@ interface GraphConfiguration {
             color: string
         }
     }
-    conditions?: GraphConditions[]
+    // Other configurable (I forgot what it was)
 }
 
-interface GraphConditions {
+export interface GraphConditions {
     formula: string
-    measure?: string
+    measure: string
     format: {
         backgroundColor?: string
         color?: string
