@@ -1,3 +1,4 @@
+import Flexmonster from 'flexmonster'
 import testdata from '../../testdata/testdata.json'
 
 // Helper function defined just in case any manual preprocessing is needed
@@ -30,9 +31,7 @@ export const baseReport: Flexmonster.Report = {
     },
 }
 
-export type ReportType = typeof report
-
-export const report = {
+export const report: Flexmonster.Report = {
     ...baseReport.dataSource,
     options: {
         ...baseReport.options,

@@ -41,48 +41,58 @@ const App = ({ ...props }: AppProps) => {
     const [displayConfiguration, setDisplayConfiguration] = useState<string>('')
     const [parsedDisplayConfiguration, setParsedDisplayConfiguration] =
         useState<DisplayConfiguration | undefined>()
+    // I think the only reason I defined this was to put it in context, but if this
+    // flexmonster object can actually get its report we will not need it
     const [reportDerived, setReportDerived] = useState(report)
 
     const pivotRef: React.RefObject<FlexmonsterReact.Pivot> =
         React.createRef<FlexmonsterReact.Pivot>()
-    // let flexmonster: Flexmonster.Pivot
     const [flexmonster, setFlexmonster] = useState<
         Flexmonster.Pivot | undefined
     >()
 
-    console.log("Current report: ", flexmonster?.getReport())
-    console.log("Current derived report: ", reportDerived)
-    console.log("Current display configuration: ", console.log(parsedDisplayConfiguration))
+    const [readonly, setReadonly] = useState(false)
 
     // Lifecycle
     useEffect(() => {
         // Later add error boundary and show fallback page
-        if (!pivotRef.current?.flexmonster) console.error('Error rendering pivot component')
+        if (!pivotRef.current?.flexmonster)
+            console.error('Error rendering pivot component')
         setFlexmonster(pivotRef.current?.flexmonster)
         if (displayConfiguration)
             setRightParsedDisplayConfiguration(displayConfiguration)
-    }, [])
+    }, [pivotRef])
 
     useEffect(() => {
         // Methods for direct intervention with Flexmonster object through display configuration
         if (parsedDisplayConfiguration?.graphType?.grid.conditions) {
-            // This would set derived report, which is useless given that it is only
-            // used on initial render
             setReportDerived((prev: any) => ({
                 ...prev,
-                conditions: parsedDisplayConfiguration?.graphType?.grid.conditions
+                conditions:
+                    parsedDisplayConfiguration?.graphType?.grid.conditions,
             }))
+        }
 
-            // Directly set report, this runs after mount so this is required
-            // const currentReport = flexmonster?.getReport()
-            // flexmonster?.setReport({
-            //     ...currentReport as Flexmonster.Report,
-            //     conditions: parsedDisplayConfiguration?.graphType?.grid.conditions
-            // })
+        if (parsedDisplayConfiguration?.readOnly) {
+            setReadonly(parsedDisplayConfiguration?.readOnly)
+            setReportDerived((prev: any) => ({
+                ...prev,
+                options: {
+                    ...prev.options,
+                    readOnly: parsedDisplayConfiguration?.readOnly,
+                },
+            }))
         }
     }, [parsedDisplayConfiguration])
 
     // Utility
+    const initializeReport = () => {
+        const report = flexmonster?.getReport()
+        return setReportDerived(report as Flexmonster.Report)
+    }
+
+    const changeReport = initializeReport
+
     const showGrid = () => {
         return flexmonster?.showGrid()
     }
@@ -105,6 +115,7 @@ const App = ({ ...props }: AppProps) => {
             },
         }))
 
+        // Do not think I need this
         // Directly set report, this runs after mount so this is required
         // const currentReport = flexmonster?.getReport()
         // return flexmonster?.setReport({
@@ -126,12 +137,12 @@ const App = ({ ...props }: AppProps) => {
     ) => {
         if (newDisplayConfiguration.startsWith('{')) {
             return setParsedDisplayConfiguration(
-                JSON.parse(newDisplayConfiguration) 
+                JSON.parse(newDisplayConfiguration),
             )
         } else {
             const parsed = yaml.load(newDisplayConfiguration)
             return setParsedDisplayConfiguration(parsed as object)
-        }   
+        }
     }
 
     // For chart only, not grid
@@ -143,6 +154,8 @@ const App = ({ ...props }: AppProps) => {
         // Probably because it is assigned before display config is set,
         // meaning we need to reset it after config is set
         // Maybe it has something to do with how it is being registered, I am quite sure of this
+
+        debugger
         console.log('Local configuration: ', parsedDisplayConfiguration)
 
         if (parsedDisplayConfiguration) {
@@ -176,12 +189,12 @@ const App = ({ ...props }: AppProps) => {
         // console.log("data", data)
     }
 
-    const defaultState = {
+    let defaultState = {
         flexmonster,
         dataSource,
         displayConfiguration,
-        parsedDisplayConfiguration,
         reportDerived,
+        readonly,
         saveDataSource,
         saveDisplayConfiguration,
         customizeChartElement,
@@ -204,11 +217,11 @@ const App = ({ ...props }: AppProps) => {
                     ref={pivotRef}
                     {...initialConfig}
                     report={reportDerived}
+                    reportcomplete={initializeReport}
+                    reportchange={changeReport}
                     customizeChartElement={customizeChartElement}
                 />
-                <CustomizationForm
-                    customizeChartElement={customizeChartElement}
-                />
+                <CustomizationForm />
             </div>
         </AppContext.Provider>
     )

@@ -8,6 +8,7 @@ export interface AppConfig {
     dataSource?: string
     displayConfiguration?: string
     report?: any
+    readOnly?: boolean
     saveDataSource: (newDataSource: string) => void
     saveDisplayConfiguration: (newDisplayConfiguration: string) => void
     customizeChartElement: (
@@ -17,6 +18,7 @@ export interface AppConfig {
 }
 
 const defaultContext = {
+    readOnly: true,
     saveDataSource: Stub,
     saveDisplayConfiguration: Stub,
     customizeChartElement: Stub,

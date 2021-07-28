@@ -1,5 +1,6 @@
 export interface DisplayConfiguration {
-    theme?: string,
+    theme?: string
+    readOnly?: boolean
     graphType?: GraphTypes
 }
 
@@ -24,12 +25,12 @@ interface GraphConfiguration {
 }
 
 interface GraphConditions {
-    formula: string,
-    measure?: string,
+    formula: string
+    measure?: string
     format: {
-        backgroundColor?: string,
-        color?: string,
-        fontFamily?: string,
-        fontSize?: string,
+        backgroundColor?: string
+        color?: string
+        fontFamily?: string
+        fontSize?: string
     }
 }

@@ -12,6 +12,7 @@
         "format": "npx prettier --write ."
     },
     "dependencies": {
+        "@types/flexmonster": "^2.7.15",
         "@types/styled-jsx": "^2.2.9",
         "flexmonster": "latest",
         "jotai": "^1.2.2",

@@ -1,16 +1,9 @@
 import React from 'react'
 import { DataConfigurator, ConfigLoader } from './sub'
 
-export type CustomizationFormProps = {
-    customizeChartElement: (
-        element: Element,
-        data: Flexmonster.ChartData | Flexmonster.ChartLegendItemData,
-    ) => void
-}
+export type CustomizationFormProps = {}
 
 const CustomizationForm = ({ ...props }: CustomizationFormProps) => {
-    const { customizeChartElement } = props
-
     return (
         <div className="configuration-form-wrapper">
             <div className="configuration-form-editor left">

@@ -5,7 +5,7 @@ export type ConfigLoaderProps = {}
 
 // ConfigLoader allows you to customize the source of your data
 const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
-    const { saveDataSource, saveDisplayConfiguration } = useApp()
+    const { readOnly, saveDataSource, saveDisplayConfiguration } = useApp()
 
     const [dataSourceDerived, setDataSourceDerived] = useState<string>('')
     const [displayConfigurationDerived, setDisplayConfigurationDerived] =
@@ -51,6 +51,7 @@ const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
                 placeholder="https://example.com/data.json"
                 value={dataSourceDerived}
                 onChange={setNewDataSource}
+                readOnly={readOnly}
             />
             <button
                 className="config-loader-button"
@@ -68,6 +69,7 @@ const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
                 name="display-configuration"
                 value={displayConfigurationDerived}
                 onChange={setNewDisplayConfiguration}
+                readOnly={readOnly}
             />
             <button
                 className="config-loader-button"
