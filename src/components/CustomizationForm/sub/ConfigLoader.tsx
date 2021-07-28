@@ -5,11 +5,7 @@ export type ConfigLoaderProps = {}
 
 // ConfigLoader allows you to customize the source of your data
 const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
-    // Only display these if
-    const {
-        saveDataSource,
-        saveDisplayConfiguration,
-    } = useApp()
+    const { saveDataSource, saveDisplayConfiguration } = useApp()
 
     const [dataSourceDerived, setDataSourceDerived] = useState<string>('')
     const [displayConfigurationDerived, setDisplayConfigurationDerived] =

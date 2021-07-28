@@ -1,5 +1,18 @@
 {
+    "theme": "lightblue",
     "graphType": {
+        "grid": {
+            "conditions": [
+                {
+                    "formula": "#value < 45000",
+                    "measure": "Revenue",
+                    "format": {
+                        "backgroundColor": "#df3800",
+                        "color": "#fff"
+                    }
+                }
+            ]
+        },
         "all": {
             "labels": {
                 "Amazon": {
@@ -9,24 +22,7 @@
                     "color": "#000"
                 }
             },
-            "data": {
-                
-            }
-        }
-    }
-}
-
-{
-    "graphType": {
-        "all": {
-            "labels": {
-                "Amazon": {
-                    "color": "#ff007f"
-                },
-                "Etsy": {
-                    "color": "#000"
-                }
-            }
+            "conditions": []
         }
     }
 }

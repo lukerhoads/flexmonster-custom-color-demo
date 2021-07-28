@@ -4,6 +4,7 @@ export const Stub = () =>
     new Error('Wrap your components in AppContext.Provider!')
 
 export interface AppConfig {
+    flexmonster?: Flexmonster.Pivot
     dataSource?: string
     displayConfiguration?: string
     report?: any

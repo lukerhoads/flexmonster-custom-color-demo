@@ -1,9 +1,9 @@
 import testdata from '../../testdata/testdata.json'
 
 // Helper function defined just in case any manual preprocessing is needed
-export const getData = (url?: string): object[] | undefined => {
+export const getData = (url?: string): object[] => {
     if (url) {
-        var data: any
+        let data: any
         fetch(url)
             .then((response) => response.json())
             .then((data) => {
@@ -11,10 +11,13 @@ export const getData = (url?: string): object[] | undefined => {
                 return
             })
             .catch((error) => {
-                console.error(error)
+                throw error
             })
         return data
     }
+
+    if (!testdata) throw new Error('testdata not available')
+
     return testdata
 }
 
@@ -27,9 +30,9 @@ export const baseReport: Flexmonster.Report = {
     },
 }
 
-export type ReportType = typeof gridReport
+export type ReportType = typeof report
 
-export const gridReport = {
+export const report = {
     ...baseReport.dataSource,
     options: {
         ...baseReport.options,
@@ -70,25 +73,25 @@ export const gridReport = {
         ],
     },
     conditions: [
-        {
-            formula: '#value < 45000',
-            measure: 'Revenue',
-            format: {
-                backgroundColor: '#df3800',
-                color: '#fff',
-                fontFamily: 'Arial',
-                fontSize: '12px',
-            },
-        },
-        {
-            formula: '#value > 400000',
-            measure: 'Revenue',
-            format: {
-                backgroundColor: '#00a45a',
-                color: '#fff',
-                fontFamily: 'Arial',
-                fontSize: '12px',
-            },
-        },
+        // {
+        //     formula: '#value < 45000',
+        //     measure: 'Revenue',
+        //     format: {
+        //         backgroundColor: '#df3800',
+        //         color: '#fff',
+        //         fontFamily: 'Arial',
+        //         fontSize: '12px',
+        //     },
+        // },
+        // {
+        //     formula: '#value > 400000',
+        //     measure: 'Revenue',
+        //     format: {
+        //         backgroundColor: '#00a45a',
+        //         color: '#fff',
+        //         fontFamily: 'Arial',
+        //         fontSize: '12px',
+        //     },
+        // },
     ],
 }

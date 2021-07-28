@@ -5,17 +5,25 @@ import Flexmonster from 'flexmonster'
 // import { customizeChartElement } from './utils'
 // import { Provider, atom, useAtom } from 'jotai'
 import { AppContext } from './AppContext'
-import { gridReport, getData } from './meta'
+import { report, getData } from './meta'
 import yaml from 'js-yaml'
+import { DisplayConfiguration } from './types/displayConfiguration'
+
+// Find a way to add theming
+// https://www.flexmonster.com/doc/customizing-appearance/
+// import 'flexmonster/theme/lightblue/flexmonster.min.css'
+
+// Also remember that you can customize default colors
+// https://jsfiddle.net/4tpruLnv/1/
 
 // Need a way to trigger a parent function on change
 // export const dataSourceAtom = atom<string>('')
 // export const displayConfigurationAtom = atom<string>('')
-// export const reportAtom = atom(gridReport)
+// export const reportAtom = atom(report)
 
 type AppProps = {}
 
-const initialConfig = {
+var initialConfig = {
     toolbar: true,
     componentFolder: 'https://cdn.flexmonster.com/',
     width: '100%',
@@ -23,66 +31,110 @@ const initialConfig = {
 }
 
 const useForceUpdate = () => {
-    const [value, setValue] = useState(0) // integer state
+    const [_, setValue] = useState(0) // integer state
     return () => setValue((value) => value + 1) // update the state to force render
 }
 
 const App = ({ ...props }: AppProps) => {
+    const forceUpdate = useForceUpdate()
     const [dataSource, setDataSource] = useState<string>('')
     const [displayConfiguration, setDisplayConfiguration] = useState<string>('')
     const [parsedDisplayConfiguration, setParsedDisplayConfiguration] =
-        useState<any>(null)
-    const [reportDerived, setReportDerived] = useState(gridReport)
+        useState<DisplayConfiguration | undefined>()
+    const [reportDerived, setReportDerived] = useState(report)
 
     const pivotRef: React.RefObject<FlexmonsterReact.Pivot> =
         React.createRef<FlexmonsterReact.Pivot>()
-    // var flexmonster: Flexmonster.Pivot
-    const [flexmonster, setFlexmonster] = useState<Flexmonster.Pivot | null>(
-        null,
-    )
+    // let flexmonster: Flexmonster.Pivot
+    const [flexmonster, setFlexmonster] = useState<
+        Flexmonster.Pivot | undefined
+    >()
+
+    console.log("Current report: ", flexmonster?.getReport())
+    console.log("Current derived report: ", reportDerived)
+    console.log("Current display configuration: ", console.log(parsedDisplayConfiguration))
 
     // Lifecycle
     useEffect(() => {
-        setFlexmonster(pivotRef.current!.flexmonster)
-        if (displayConfiguration) {
-            setParsedDisplayConfiguration(JSON.parse(displayConfiguration))
-        }
+        // Later add error boundary and show fallback page
+        if (!pivotRef.current?.flexmonster) console.error('Error rendering pivot component')
+        setFlexmonster(pivotRef.current?.flexmonster)
+        if (displayConfiguration)
+            setRightParsedDisplayConfiguration(displayConfiguration)
     }, [])
 
     useEffect(() => {
-        if (displayConfiguration.startsWith('{')) {
-            setParsedDisplayConfiguration(JSON.parse(displayConfiguration))
-        } else {
-            setParsedDisplayConfiguration(yaml.load(displayConfiguration))
+        // Methods for direct intervention with Flexmonster object through display configuration
+        if (parsedDisplayConfiguration?.graphType?.grid.conditions) {
+            // This would set derived report, which is useless given that it is only
+            // used on initial render
+            setReportDerived((prev: any) => ({
+                ...prev,
+                conditions: parsedDisplayConfiguration?.graphType?.grid.conditions
+            }))
+
+            // Directly set report, this runs after mount so this is required
+            // const currentReport = flexmonster?.getReport()
+            // flexmonster?.setReport({
+            //     ...currentReport as Flexmonster.Report,
+            //     conditions: parsedDisplayConfiguration?.graphType?.grid.conditions
+            // })
         }
-    }, [displayConfiguration])
+    }, [parsedDisplayConfiguration])
 
     // Utility
     const showGrid = () => {
-        // ATM, switching is not available due to dependency on report which is
-        // in state
-        return flexmonster!.showGrid()
+        return flexmonster?.showGrid()
     }
 
     const showColumn = () => {
-        return flexmonster!.showCharts('column')
+        return flexmonster?.showCharts('column')
     }
 
     // Applies downstream changes to configuration
     const saveDataSource = (newDataSource: string) => {
-        setDataSource(newDataSource) // questionable
-        return setReportDerived((prev: any) => ({
+        // For context updates
+        setDataSource(newDataSource)
+
+        // This would set derived report, which is useless given that it is only
+        // used on initial render
+        setReportDerived((prev: any) => ({
             ...prev,
             dataSource: {
                 data: getData(newDataSource),
             },
         }))
+
+        // Directly set report, this runs after mount so this is required
+        // const currentReport = flexmonster?.getReport()
+        // return flexmonster?.setReport({
+        //     ...currentReport as Flexmonster.Report,
+        //     dataSource: {
+        //         data: getData(newDataSource),
+        //     },
+        // })
     }
 
     const saveDisplayConfiguration = (newDisplayConfiguration: string) => {
-        return setDisplayConfiguration(newDisplayConfiguration)
+        // For context updates
+        setDisplayConfiguration(newDisplayConfiguration)
+        return setRightParsedDisplayConfiguration(newDisplayConfiguration)
     }
 
+    const setRightParsedDisplayConfiguration = (
+        newDisplayConfiguration: string,
+    ) => {
+        if (newDisplayConfiguration.startsWith('{')) {
+            return setParsedDisplayConfiguration(
+                JSON.parse(newDisplayConfiguration) 
+            )
+        } else {
+            const parsed = yaml.load(newDisplayConfiguration)
+            return setParsedDisplayConfiguration(parsed as object)
+        }   
+    }
+
+    // For chart only, not grid
     const customizeChartElement = (
         element: Element,
         data: Flexmonster.ChartData | Flexmonster.ChartLegendItemData,
@@ -90,9 +142,11 @@ const App = ({ ...props }: AppProps) => {
         // This is being ran before parsed can be set
         // Probably because it is assigned before display config is set,
         // meaning we need to reset it after config is set
-        console.log(parsedDisplayConfiguration)
+        // Maybe it has something to do with how it is being registered, I am quite sure of this
+        console.log('Local configuration: ', parsedDisplayConfiguration)
+
         if (parsedDisplayConfiguration) {
-            if (parsedDisplayConfiguration.graphType.all) {
+            if (parsedDisplayConfiguration.graphType?.all) {
                 // Configuration applies to all graphs
                 const referencePoint = parsedDisplayConfiguration.graphType.all
                 if (referencePoint.labels && data.label) {
@@ -112,33 +166,28 @@ const App = ({ ...props }: AppProps) => {
                         }
                     }
                 }
-
-                if (referencePoint.data) {
-                }
             } else {
                 // Configuration specific to graph types
-                if (
-                    Object.keys(parsedDisplayConfiguration.graphType).includes(
-                        data.label!,
-                    )
-                ) {
-                }
             }
         }
 
+        // Used for finding out structure to write customization functions
         // console.log("element", element)
         // console.log("data", data)
     }
 
     const defaultState = {
+        flexmonster,
         dataSource,
         displayConfiguration,
+        parsedDisplayConfiguration,
         reportDerived,
         saveDataSource,
         saveDisplayConfiguration,
         customizeChartElement,
     }
 
+    // Think of passing customizeChartElement conditionally.
     return (
         <AppContext.Provider value={defaultState}>
             <div>
@@ -147,6 +196,9 @@ const App = ({ ...props }: AppProps) => {
                 </button>
                 <button type="button" onClick={() => showColumn()}>
                     Chart
+                </button>
+                <button type="button" onClick={() => forceUpdate()}>
+                    Rerender
                 </button>
                 <FlexmonsterReact.Pivot
                     ref={pivotRef}

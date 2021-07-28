@@ -1,1 +1,1 @@
-export { getData, baseReport, gridReport } from './reports'
+export { getData, baseReport, report } from './reports'
