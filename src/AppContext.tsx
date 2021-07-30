@@ -27,7 +27,6 @@ export interface AppConfig {
     flexmonster?: Flexmonster.Pivot
     dataSource?: string
     displayConfiguration: string
-    report?: any
     readOnly?: boolean
     theme?: ThemeTypes
     defaultColors?: string[]

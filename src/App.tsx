@@ -35,7 +35,9 @@ const App = ({ ...props }: AppProps) => {
         useState<DisplayConfiguration | undefined>()
     // I think the only reason I defined this was to put it in context, but if this
     // flexmonster object can actually get its report we will not need it
+    // Not being used, but just have it for legacy purposes
     const [reportDerived, setReportDerived] = useState(report)
+    const [reportReady, setReportReady] = useState(false)
 
     const pivotRef: React.RefObject<FlexmonsterReact.Pivot> =
         React.createRef<FlexmonsterReact.Pivot>()
@@ -60,24 +62,43 @@ const App = ({ ...props }: AppProps) => {
     useEffect(() => {
         // in here !!!!
         console.log("parsed update, in here")
+        debugger;
         // Methods for direct intervention with Flexmonster object through display configuration
         if (parsedDisplayConfiguration?.graphType?.grid.conditions) {
+            console.log(flexmonster?.getReport())
             setReportDerived((prev: any) => ({
                 ...prev,
                 conditions:
                     parsedDisplayConfiguration?.graphType?.grid.conditions,
             }))
+
+            // Now gotta set it directly, doing it through derived
+            // was a stupid idea
+            const currentReport = flexmonster?.getReport()
+            flexmonster?.setReport({
+                ...currentReport as Flexmonster.Report,
+                conditions: parsedDisplayConfiguration?.graphType?.grid.conditions,
+            })
         }
 
         if (parsedDisplayConfiguration?.readOnly) {
             setReadonly(parsedDisplayConfiguration?.readOnly)
-            setReportDerived((prev: any) => ({
-                ...prev,
+            // setReportDerived((prev: any) => ({
+            //     ...prev,
+            //     options: {
+            //         ...prev.options,
+            //         readOnly: parsedDisplayConfiguration?.readOnly,
+            //     },
+            // }))
+
+            const currentReport = flexmonster?.getReport() as Flexmonster.Report
+            flexmonster?.setReport({
+                ...currentReport,
                 options: {
-                    ...prev.options,
+                    ...currentReport.options,
                     readOnly: parsedDisplayConfiguration?.readOnly,
                 },
-            }))
+            })
         }
 
         if (parsedDisplayConfiguration?.theme) {
@@ -98,10 +119,14 @@ const App = ({ ...props }: AppProps) => {
     // Utility
     const initializeReport = () => {
         const report = flexmonster?.getReport()
+        setReportReady(true)
         return setReportDerived(report as Flexmonster.Report)
     }
 
-    const changeReport = initializeReport
+    const changeReport = () => {
+        const report = flexmonster?.getReport()
+        return setReportDerived(report as Flexmonster.Report)
+    }
 
     const showGrid = () => {
         return flexmonster?.showGrid()
@@ -125,15 +150,14 @@ const App = ({ ...props }: AppProps) => {
             },
         }))
 
-        // Do not think I need this
         // Directly set report, this runs after mount so this is required
-        // const currentReport = flexmonster?.getReport()
-        // return flexmonster?.setReport({
-        //     ...currentReport as Flexmonster.Report,
-        //     dataSource: {
-        //         data: getData(newDataSource),
-        //     },
-        // })
+        const currentReport = flexmonster?.getReport()
+        return flexmonster?.setReport({
+            ...currentReport as Flexmonster.Report,
+            dataSource: {
+                data: getData(newDataSource),
+            },
+        })
     }
 
     const saveDisplayConfiguration = (newDisplayConfiguration: string) => {
@@ -214,7 +238,6 @@ const App = ({ ...props }: AppProps) => {
         flexmonster,
         dataSource,
         displayConfiguration,
-        reportDerived,
         readonly,
         theme,
         defaultColors,
@@ -240,7 +263,7 @@ const App = ({ ...props }: AppProps) => {
                 <FlexmonsterReact.Pivot
                     ref={pivotRef}
                     {...initialConfig}
-                    report={reportDerived}
+                    report={report}
                     reportcomplete={initializeReport}
                     reportchange={changeReport}
                     customizeChartElement={customizeChartElement}
