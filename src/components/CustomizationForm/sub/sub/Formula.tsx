@@ -27,11 +27,9 @@ const Formula = ({ ...props }: FormulaProps) => {
     useEffect(() => {
         console.log("In this condition update block from partition update")
         console.log(partitionedDisplayConfiguration)
-        debugger;
         const incomingConditions = partitionedDisplayConfiguration?.conditions
         if (conditions != incomingConditions && incomingConditions != undefined) {
             setConditions(incomingConditions)
-            debugger;
         }
     }, [partitionedDisplayConfiguration])
 

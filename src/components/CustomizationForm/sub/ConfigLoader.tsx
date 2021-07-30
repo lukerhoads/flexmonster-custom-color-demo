@@ -32,6 +32,10 @@ const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
         localStorage.setItem('cfg', JSON.stringify(cfg))
     }, [dataSourceDerived, displayConfigurationDerived])
 
+    useEffect(() => {
+        setDisplayConfigurationDerived(displayConfiguration)
+    }, [displayConfiguration])
+
     const setNewDataSource = (e: ChangeEvent<HTMLInputElement>) => {
         return setDataSourceDerived(e.currentTarget.value)
     }

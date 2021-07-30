@@ -55,14 +55,10 @@ const App = ({ ...props }: AppProps) => {
         if (!pivotRef.current?.flexmonster)
             console.error('Error rendering pivot component')
         setFlexmonster(pivotRef.current?.flexmonster)
-        if (displayConfiguration)
-            setRightParsedDisplayConfiguration(displayConfiguration)
     }, [pivotRef])
 
     useEffect(() => {
-        // in here !!!!
-        console.log("parsed update, in here")
-        debugger;
+        // Had a simple mistake in here, just marking for future reference
         // Methods for direct intervention with Flexmonster object through display configuration
         if (parsedDisplayConfiguration?.graphType?.grid.conditions) {
             console.log(flexmonster?.getReport())
@@ -83,13 +79,13 @@ const App = ({ ...props }: AppProps) => {
 
         if (parsedDisplayConfiguration?.readOnly) {
             setReadonly(parsedDisplayConfiguration?.readOnly)
-            // setReportDerived((prev: any) => ({
-            //     ...prev,
-            //     options: {
-            //         ...prev.options,
-            //         readOnly: parsedDisplayConfiguration?.readOnly,
-            //     },
-            // }))
+            setReportDerived((prev: any) => ({
+                ...prev,
+                options: {
+                    ...prev.options,
+                    readOnly: parsedDisplayConfiguration?.readOnly,
+                },
+            }))
 
             const currentReport = flexmonster?.getReport() as Flexmonster.Report
             flexmonster?.setReport({
@@ -200,8 +196,8 @@ const App = ({ ...props }: AppProps) => {
         // meaning we need to reset it after config is set
         // Maybe it has something to do with how it is being registered, I am quite sure of this
 
-        debugger
-        console.log('Local configuration: ', parsedDisplayConfiguration)
+        // This function is still just purely messed up, might have to look more into the 
+        // docs to see if outside configuration would be possible.
 
         if (parsedDisplayConfiguration) {
             if (parsedDisplayConfiguration.graphType?.all) {
