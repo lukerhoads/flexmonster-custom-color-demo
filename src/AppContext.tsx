@@ -1,25 +1,48 @@
 import React from 'react'
+import { DisplayConfiguration } from './types/displayConfiguration'
 
 export const Stub = () =>
     new Error('Wrap your components in AppContext.Provider!')
 
+export type ThemeTypes =
+    | 'lightblue'
+    | 'softdefault'
+    | 'stripedblue'
+    | 'stripedteal'
+    | 'brightorange'
+    | 'yellow'
+    | 'green'
+    | 'midnight'
+    | 'macos'
+    | 'lightblue'
+    | 'teal'
+    | 'orange'
+    | 'default'
+    | 'blackorange'
+    | 'accessible'
+    | 'old'
+    | 'purple'
+
 export interface AppConfig {
     flexmonster?: Flexmonster.Pivot
     dataSource?: string
-    displayConfiguration?: string
-    report?: any
+    displayConfiguration: string
+    readOnly?: boolean
+    theme?: ThemeTypes
+    defaultColors?: string[]
     saveDataSource: (newDataSource: string) => void
     saveDisplayConfiguration: (newDisplayConfiguration: string) => void
-    customizeChartElement: (
-        element: Element,
-        data: Flexmonster.ChartData | Flexmonster.ChartLegendItemData,
-    ) => void
+    saveReadOnly: (newReadOnly: boolean) => void
+    saveTheme: (newTheme: ThemeTypes) => void
 }
 
 const defaultContext = {
+    displayConfiguration: 'null',
+    readOnly: true,
     saveDataSource: Stub,
     saveDisplayConfiguration: Stub,
-    customizeChartElement: Stub,
+    saveReadOnly: Stub,
+    saveTheme: Stub,
 }
 
 export const AppContext = React.createContext<AppConfig>(defaultContext)

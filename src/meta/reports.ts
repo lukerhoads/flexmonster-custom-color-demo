@@ -1,7 +1,8 @@
+import Flexmonster from 'flexmonster'
 import testdata from '../../testdata/testdata.json'
 
 // Helper function defined just in case any manual preprocessing is needed
-export const getData = (url?: string): object[] => {
+export const getData = (url?: string): object[] | undefined => {
     if (url) {
         let data: any
         fetch(url)
@@ -16,7 +17,7 @@ export const getData = (url?: string): object[] => {
         return data
     }
 
-    if (!testdata) throw new Error('testdata not available')
+    if (!testdata) { console.error('testdata not available'); return }
 
     return testdata
 }
@@ -30,9 +31,7 @@ export const baseReport: Flexmonster.Report = {
     },
 }
 
-export type ReportType = typeof report
-
-export const report = {
+export const report: Flexmonster.Report = {
     ...baseReport.dataSource,
     options: {
         ...baseReport.options,

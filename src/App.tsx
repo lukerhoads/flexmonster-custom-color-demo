@@ -1,25 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as FlexmonsterReact from 'react-flexmonster'
 import { CustomizationForm } from './components'
 import Flexmonster from 'flexmonster'
-// import { customizeChartElement } from './utils'
-// import { Provider, atom, useAtom } from 'jotai'
-import { AppContext } from './AppContext'
+import { AppContext, ThemeTypes } from './AppContext'
 import { report, getData } from './meta'
 import yaml from 'js-yaml'
 import { DisplayConfiguration } from './types/displayConfiguration'
 
-// Find a way to add theming
 // https://www.flexmonster.com/doc/customizing-appearance/
-// import 'flexmonster/theme/lightblue/flexmonster.min.css'
+// import 'flexmonster/theme'
 
 // Also remember that you can customize default colors
 // https://jsfiddle.net/4tpruLnv/1/
-
-// Need a way to trigger a parent function on change
-// export const dataSourceAtom = atom<string>('')
-// export const displayConfigurationAtom = atom<string>('')
-// export const reportAtom = atom(report)
 
 type AppProps = {}
 
@@ -38,51 +30,100 @@ const useForceUpdate = () => {
 const App = ({ ...props }: AppProps) => {
     const forceUpdate = useForceUpdate()
     const [dataSource, setDataSource] = useState<string>('')
-    const [displayConfiguration, setDisplayConfiguration] = useState<string>('')
+    const [displayConfiguration, setDisplayConfiguration] = useState<string>('null')
     const [parsedDisplayConfiguration, setParsedDisplayConfiguration] =
         useState<DisplayConfiguration | undefined>()
+    // I think the only reason I defined this was to put it in context, but if this
+    // flexmonster object can actually get its report we will not need it
+    // Not being used, but just have it for legacy purposes
     const [reportDerived, setReportDerived] = useState(report)
+    const [reportReady, setReportReady] = useState(false)
 
     const pivotRef: React.RefObject<FlexmonsterReact.Pivot> =
         React.createRef<FlexmonsterReact.Pivot>()
-    // let flexmonster: Flexmonster.Pivot
     const [flexmonster, setFlexmonster] = useState<
         Flexmonster.Pivot | undefined
     >()
 
-    console.log("Current report: ", flexmonster?.getReport())
-    console.log("Current derived report: ", reportDerived)
-    console.log("Current display configuration: ", console.log(parsedDisplayConfiguration))
+    const [readonly, setReadonly] = useState(false)
+    const [theme, setTheme] = useState<ThemeTypes>('default')
+    const [defaultColors, setDefaultColors] = useState<string[]>([])
 
     // Lifecycle
     useEffect(() => {
         // Later add error boundary and show fallback page
-        if (!pivotRef.current?.flexmonster) console.error('Error rendering pivot component')
+        if (!pivotRef.current?.flexmonster)
+            console.error('Error rendering pivot component')
         setFlexmonster(pivotRef.current?.flexmonster)
-        if (displayConfiguration)
-            setRightParsedDisplayConfiguration(displayConfiguration)
-    }, [])
+    }, [pivotRef])
 
     useEffect(() => {
+        // Had a simple mistake in here, just marking for future reference
         // Methods for direct intervention with Flexmonster object through display configuration
         if (parsedDisplayConfiguration?.graphType?.grid.conditions) {
-            // This would set derived report, which is useless given that it is only
-            // used on initial render
+            console.log(flexmonster?.getReport())
             setReportDerived((prev: any) => ({
                 ...prev,
-                conditions: parsedDisplayConfiguration?.graphType?.grid.conditions
+                conditions:
+                    parsedDisplayConfiguration?.graphType?.grid.conditions,
             }))
 
-            // Directly set report, this runs after mount so this is required
-            // const currentReport = flexmonster?.getReport()
-            // flexmonster?.setReport({
-            //     ...currentReport as Flexmonster.Report,
-            //     conditions: parsedDisplayConfiguration?.graphType?.grid.conditions
-            // })
+            // Now gotta set it directly, doing it through derived
+            // was a stupid idea
+            const currentReport = flexmonster?.getReport()
+            flexmonster?.setReport({
+                ...currentReport as Flexmonster.Report,
+                conditions: parsedDisplayConfiguration?.graphType?.grid.conditions,
+            })
+        }
+
+        if (parsedDisplayConfiguration?.readOnly) {
+            setReadonly(parsedDisplayConfiguration?.readOnly)
+            setReportDerived((prev: any) => ({
+                ...prev,
+                options: {
+                    ...prev.options,
+                    readOnly: parsedDisplayConfiguration?.readOnly,
+                },
+            }))
+
+            const currentReport = flexmonster?.getReport() as Flexmonster.Report
+            flexmonster?.setReport({
+                ...currentReport,
+                options: {
+                    ...currentReport.options,
+                    readOnly: parsedDisplayConfiguration?.readOnly,
+                },
+            })
+        }
+
+        if (parsedDisplayConfiguration?.theme) {
+            const theme = parsedDisplayConfiguration?.theme
+            // Check if provided theme fits the union
+            if (theme as ThemeTypes) {
+                setTheme(theme as ThemeTypes)
+            } else {
+                console.error('Invalid theme type provided')
+            }
         }
     }, [parsedDisplayConfiguration])
 
+    useEffect(() => {
+        // Change theme type
+    }, [theme])
+
     // Utility
+    const initializeReport = () => {
+        const report = flexmonster?.getReport()
+        setReportReady(true)
+        return setReportDerived(report as Flexmonster.Report)
+    }
+
+    const changeReport = () => {
+        const report = flexmonster?.getReport()
+        return setReportDerived(report as Flexmonster.Report)
+    }
+
     const showGrid = () => {
         return flexmonster?.showGrid()
     }
@@ -106,13 +147,13 @@ const App = ({ ...props }: AppProps) => {
         }))
 
         // Directly set report, this runs after mount so this is required
-        // const currentReport = flexmonster?.getReport()
-        // return flexmonster?.setReport({
-        //     ...currentReport as Flexmonster.Report,
-        //     dataSource: {
-        //         data: getData(newDataSource),
-        //     },
-        // })
+        const currentReport = flexmonster?.getReport()
+        return flexmonster?.setReport({
+            ...currentReport as Flexmonster.Report,
+            dataSource: {
+                data: getData(newDataSource),
+            },
+        })
     }
 
     const saveDisplayConfiguration = (newDisplayConfiguration: string) => {
@@ -125,13 +166,24 @@ const App = ({ ...props }: AppProps) => {
         newDisplayConfiguration: string,
     ) => {
         if (newDisplayConfiguration.startsWith('{')) {
-            return setParsedDisplayConfiguration(
-                JSON.parse(newDisplayConfiguration) 
-            )
+            const parsed = JSON.parse(newDisplayConfiguration)
+            return setParsedDisplayConfiguration(parsed as DisplayConfiguration)
         } else {
             const parsed = yaml.load(newDisplayConfiguration)
-            return setParsedDisplayConfiguration(parsed as object)
-        }   
+            return setParsedDisplayConfiguration(parsed as DisplayConfiguration)
+        }
+    }
+
+    const saveReadOnly = (newReadOnly: boolean) => {
+        if (newReadOnly != readonly) {
+            return setReadonly(newReadOnly)
+        }
+    }
+
+    const saveTheme = (newTheme: ThemeTypes) => {
+        if (newTheme != theme) {
+            return setTheme(newTheme)
+        }
     }
 
     // For chart only, not grid
@@ -143,7 +195,9 @@ const App = ({ ...props }: AppProps) => {
         // Probably because it is assigned before display config is set,
         // meaning we need to reset it after config is set
         // Maybe it has something to do with how it is being registered, I am quite sure of this
-        console.log('Local configuration: ', parsedDisplayConfiguration)
+
+        // This function is still just purely messed up, might have to look more into the 
+        // docs to see if outside configuration would be possible.
 
         if (parsedDisplayConfiguration) {
             if (parsedDisplayConfiguration.graphType?.all) {
@@ -176,15 +230,17 @@ const App = ({ ...props }: AppProps) => {
         // console.log("data", data)
     }
 
-    const defaultState = {
+    let defaultState = {
         flexmonster,
         dataSource,
         displayConfiguration,
-        parsedDisplayConfiguration,
-        reportDerived,
+        readonly,
+        theme,
+        defaultColors,
         saveDataSource,
         saveDisplayConfiguration,
-        customizeChartElement,
+        saveReadOnly,
+        saveTheme,
     }
 
     // Think of passing customizeChartElement conditionally.
@@ -203,12 +259,53 @@ const App = ({ ...props }: AppProps) => {
                 <FlexmonsterReact.Pivot
                     ref={pivotRef}
                     {...initialConfig}
-                    report={reportDerived}
+                    report={report}
+                    reportcomplete={initializeReport}
+                    reportchange={changeReport}
                     customizeChartElement={customizeChartElement}
                 />
-                <CustomizationForm
-                    customizeChartElement={customizeChartElement}
-                />
+                <CustomizationForm />
+                <style jsx>{`
+                    ${defaultColors[0]
+                        ? `
+                        .fm-charts-color-1 {
+                            fill: ${defaultColors[0]} !important;
+                        }
+                    `
+                        : ''}
+
+                    ${defaultColors[1]
+                        ? `
+                        .fm-charts-color-2 {
+                            fill: ${defaultColors[1]} !important;
+                        }
+                    `
+                        : ''}
+
+                    ${defaultColors[2]
+                        ? `
+                        .fm-charts-color-3 {
+                            fill: ${defaultColors[2]} !important;
+                        }
+                    `
+                        : ''}
+                    
+                    ${defaultColors[3]
+                        ? `
+                        .fm-charts-color-4 {
+                            fill: ${defaultColors[3]} !important;
+                        }
+                    `
+                        : ''}
+
+                    ${defaultColors[4]
+                        ? `
+                        .fm-charts-color-5 {
+                            fill: ${defaultColors[4]} !important;
+                        }
+                    `
+                        : ''}
+                `}</style>
             </div>
         </AppContext.Provider>
     )

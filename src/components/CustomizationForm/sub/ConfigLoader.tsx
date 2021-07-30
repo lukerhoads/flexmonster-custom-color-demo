@@ -5,11 +5,11 @@ export type ConfigLoaderProps = {}
 
 // ConfigLoader allows you to customize the source of your data
 const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
-    const { saveDataSource, saveDisplayConfiguration } = useApp()
+    const { readOnly, displayConfiguration, saveDataSource, saveDisplayConfiguration } = useApp()
 
     const [dataSourceDerived, setDataSourceDerived] = useState<string>('')
     const [displayConfigurationDerived, setDisplayConfigurationDerived] =
-        useState<string>('')
+        useState<string>(displayConfiguration)
 
     // Lifecycle
     useEffect(() => {
@@ -32,6 +32,10 @@ const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
         localStorage.setItem('cfg', JSON.stringify(cfg))
     }, [dataSourceDerived, displayConfigurationDerived])
 
+    useEffect(() => {
+        setDisplayConfigurationDerived(displayConfiguration)
+    }, [displayConfiguration])
+
     const setNewDataSource = (e: ChangeEvent<HTMLInputElement>) => {
         return setDataSourceDerived(e.currentTarget.value)
     }
@@ -51,9 +55,10 @@ const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
                 placeholder="https://example.com/data.json"
                 value={dataSourceDerived}
                 onChange={setNewDataSource}
+                readOnly={readOnly}
             />
             <button
-                className="config-loader-button"
+                className="button"
                 onClick={(e: MouseEvent<HTMLButtonElement>) =>
                     saveDataSource(dataSourceDerived)
                 }
@@ -68,9 +73,10 @@ const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
                 name="display-configuration"
                 value={displayConfigurationDerived}
                 onChange={setNewDisplayConfiguration}
+                readOnly={readOnly}
             />
             <button
-                className="config-loader-button"
+                className="button"
                 onClick={(e: MouseEvent<HTMLButtonElement>) =>
                     saveDisplayConfiguration(displayConfigurationDerived)
                 }
@@ -80,10 +86,6 @@ const ConfigLoader = ({ ...props }: ConfigLoaderProps) => {
             <style jsx>{`
                 .config-loader-wrapper {
                     height: 100%;
-                }
-
-                .config-loader-button {
-                    width: 100%;
                 }
 
                 .config-loader-textarea {

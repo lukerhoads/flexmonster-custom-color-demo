@@ -55,3 +55,8 @@ As you can see, there are two subsections, `labels`, `data`. Labels contains opt
 and Data contains options to style measured data, such as these:
 
 <img src="https://lukerhoads-utility.s3.amazonaws.com/graph.PNG"> /
+
+## Unimportant extra features include:
+
+-   Themes (not a UI option yet)
+-   Readonly sharing (not a UI option yet)
