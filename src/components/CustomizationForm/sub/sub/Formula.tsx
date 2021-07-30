@@ -21,10 +21,13 @@ const Formula = ({ ...props }: FormulaProps) => {
         partitionedDisplayConfiguration,
         setPartitionedDisplayConfiguration,
     ] = useState(parsedDisplayConfiguration?.graphType['grid'])
-    const [conditions, setConditions] = useState<GraphConditions[]>()
+    const [conditions, setConditions] = useState<GraphConditions[]>([])
 
     // Lifecycle (this may be the cause of the cycle, as it ultimately depends on displayConfiguration)
     useEffect(() => {
+        console.log("In this condition update block from partition update")
+        console.log(partitionedDisplayConfiguration)
+        debugger;
         const incomingConditions = partitionedDisplayConfiguration?.conditions
         if (conditions != incomingConditions && incomingConditions != undefined) {
             setConditions(incomingConditions)
@@ -86,7 +89,10 @@ const Formula = ({ ...props }: FormulaProps) => {
             },
         }
 
-        const newArray = conditions?.splice(conditions.length, 0, newCondition)
+        const conditionsLocal = conditions
+        const newArray = conditionsLocal?.splice(conditionsLocal.length, 0, newCondition)
+        // Because this sets display configuration, and conditions is dependent,
+        // setConditions is not necessary
         saveDisplayConfiguration(
             JSON.stringify({
                 ...parsedDisplayConfiguration,
@@ -94,13 +100,11 @@ const Formula = ({ ...props }: FormulaProps) => {
                     ...parsedDisplayConfiguration?.graphType,
                     grid: {
                         ...parsedDisplayConfiguration?.graphType.grid,
-                        conditions: newCondition,
+                        conditions: conditionsLocal,
                     },
                 },
             }),
         )
-        setConditions(newArray)
-        debugger
     }
 
     const deleteCondition = (idx: number) => {

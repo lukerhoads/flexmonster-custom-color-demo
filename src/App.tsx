@@ -58,6 +58,8 @@ const App = ({ ...props }: AppProps) => {
     }, [pivotRef])
 
     useEffect(() => {
+        // in here !!!!
+        console.log("parsed update, in here")
         // Methods for direct intervention with Flexmonster object through display configuration
         if (parsedDisplayConfiguration?.graphType?.grid.conditions) {
             setReportDerived((prev: any) => ({
@@ -140,18 +142,6 @@ const App = ({ ...props }: AppProps) => {
         return setRightParsedDisplayConfiguration(newDisplayConfiguration)
     }
 
-    const saveReadOnly = (newReadOnly: boolean) => {
-        if (newReadOnly != readonly) {
-            return setReadonly(newReadOnly)
-        }
-    }
-
-    const saveTheme = (newTheme: ThemeTypes) => {
-        if (newTheme != theme) {
-            return setTheme(newTheme)
-        }
-    }
-
     const setRightParsedDisplayConfiguration = (
         newDisplayConfiguration: string,
     ) => {
@@ -161,6 +151,18 @@ const App = ({ ...props }: AppProps) => {
         } else {
             const parsed = yaml.load(newDisplayConfiguration)
             return setParsedDisplayConfiguration(parsed as DisplayConfiguration)
+        }
+    }
+
+    const saveReadOnly = (newReadOnly: boolean) => {
+        if (newReadOnly != readonly) {
+            return setReadonly(newReadOnly)
+        }
+    }
+
+    const saveTheme = (newTheme: ThemeTypes) => {
+        if (newTheme != theme) {
+            return setTheme(newTheme)
         }
     }
 
